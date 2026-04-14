@@ -541,7 +541,7 @@ function Terminal(): React.JSX.Element | null {
         const target = e.target as HTMLElement | null
         const inEditor =
           target?.closest('.monaco-editor, [contenteditable]') !== null ||
-          target?.closest('textarea:not(.xterm-helper-textarea), input') !== null
+          target?.closest('textarea, input') !== null && target?.closest('.terminal-container') === null
         if (!inEditor) {
           const state = useAppStore.getState()
           if (state.activeTabType === 'editor' && state.activeFileId) {
@@ -681,7 +681,7 @@ function Terminal(): React.JSX.Element | null {
       }
       // Why: capture terminal scrollback buffers while TerminalPane components
       // are still mounted. Dispatching beforeunload triggers the App.tsx
-      // captureAndFlush handler which serializes each pane's xterm buffer
+      // captureAndFlush handler which serializes each pane's terminal buffer
       // and writes the session to disk via synchronous IPC.
       window.dispatchEvent(new Event('beforeunload'))
       // Why: during a quit (Cmd+Q), PTYs are still alive (cleanup is deferred

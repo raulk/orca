@@ -172,20 +172,20 @@ function TabBarInner({
 
   const focusTerminalTabSurface = useCallback((tabId: string) => {
     // Why: creating a terminal from the "+" menu is a two-step focus race:
-    // React must first mount the new TerminalPane/xterm, then Radix closes the
+    // React must first mount the new TerminalPane/terminal, then Radix closes the
     // menu. Even after suppressing trigger focus restore, the terminal's hidden
     // textarea may not exist until the next paint. Double-rAF waits for that
     // commit so the new tab, not the "+" button, ends up owning keyboard focus.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const scoped = document.querySelector(
-          `[data-terminal-tab-id="${tabId}"] .xterm-helper-textarea`
+          `[data-terminal-tab-id="${tabId}"] .terminal-container textarea`
         ) as HTMLElement | null
         if (scoped) {
           scoped.focus()
           return
         }
-        const fallback = document.querySelector('.xterm-helper-textarea') as HTMLElement | null
+        const fallback = document.querySelector('.terminal-container textarea') as HTMLElement | null
         fallback?.focus()
       })
     })
@@ -294,7 +294,7 @@ function TabBarInner({
           sideOffset={6}
           className="min-w-[11rem] rounded-[11px] border-border/80 p-1 shadow-[0_16px_36px_rgba(0,0,0,0.24)]"
           onCloseAutoFocus={(e) => {
-            // Why: selecting "New Terminal" activates a freshly-mounted xterm on
+            // Why: selecting "New Terminal" activates a freshly-mounted terminal on
             // the next frame. Radix's default focus restore sends focus back to
             // the "+" trigger after close, which steals it from the new tab and
             // makes the terminal look unfocused until the user clicks again.

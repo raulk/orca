@@ -43,11 +43,11 @@ function isEditableTarget(target: EventTarget | null): boolean {
     return false
   }
 
-  // xterm.js focuses a hidden <textarea class="xterm-helper-textarea"> for
+  // ghostty-web focuses a hidden <textarea> inside .terminal-container for
   // keyboard input.  That element IS an editable target, but we must NOT
   // suppress global shortcuts when the terminal itself is focused — otherwise
   // Cmd/Ctrl+P and other app-level keybindings become unreachable.
-  if (target.classList.contains('xterm-helper-textarea')) {
+  if (target instanceof HTMLTextAreaElement && target.closest('.terminal-container') !== null) {
     return false
   }
 

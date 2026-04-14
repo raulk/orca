@@ -24,9 +24,9 @@ function isEditableTarget(target: EventTarget | null): boolean {
     return false
   }
 
-  // xterm uses a hidden textarea for terminal input. Treating it like a normal
-  // text field would make the sidebar's app-level worktree shortcuts unreachable.
-  if (target.classList.contains('xterm-helper-textarea')) {
+  // ghostty-web uses a hidden textarea for terminal input. Treating it like a normal
+  // editable element would lose terminal focus, so treat it as non-editable.
+  if (target instanceof HTMLTextAreaElement && target.closest('.terminal-container') !== null) {
     return false
   }
 
@@ -220,7 +220,7 @@ const VirtualizedWorktreeViewport = React.memo(function VirtualizedWorktreeViewp
         e.preventDefault()
       } else if (e.key === 'Enter') {
         const helper = document.querySelector(
-          '.xterm-helper-textarea'
+          '.terminal-container textarea'
         ) as HTMLTextAreaElement | null
         if (helper) {
           helper.focus()

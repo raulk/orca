@@ -191,9 +191,9 @@ export default function WorktreeJumpPalette(): React.JSX.Element | null {
     // Dialog unmounts. Pragmatic v1 choice per design doc Section 3.5.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const xterm = document.querySelector('.xterm-helper-textarea') as HTMLElement | null
-        if (xterm) {
-          xterm.focus()
+        const terminalTextarea = document.querySelector('.terminal-container textarea') as HTMLElement | null
+        if (terminalTextarea) {
+          terminalTextarea.focus()
           return
         }
         // Fallback: try Monaco editor

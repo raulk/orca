@@ -2,16 +2,17 @@ import type * as ReactModule from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { resolveZoomTarget } from './useIpcEvents'
 
-function makeTarget(args: { hasXtermClass?: boolean; editorClosest?: boolean }): {
-  classList: { contains: (token: string) => boolean }
+function makeTarget(args: { isTerminalTextarea?: boolean; editorClosest?: boolean }): {
   closest: (selector: string) => Element | null
 } {
-  const { hasXtermClass = false, editorClosest = false } = args
+  const { isTerminalTextarea = false, editorClosest = false } = args
   return {
-    classList: {
-      contains: (token: string) => hasXtermClass && token === 'xterm-helper-textarea'
-    },
-    closest: () => (editorClosest ? ({} as Element) : null)
+    closest: (selector: string) => {
+      if (selector === '.terminal-container') {
+        return isTerminalTextarea ? ({} as Element) : null
+      }
+      return editorClosest ? ({} as Element) : null
+    }
   }
 }
 
@@ -21,7 +22,7 @@ describe('resolveZoomTarget', () => {
       resolveZoomTarget({
         activeView: 'terminal',
         activeTabType: 'terminal',
-        activeElement: makeTarget({ hasXtermClass: true })
+        activeElement: makeTarget({ isTerminalTextarea: true })
       })
     ).toBe('terminal')
   })
@@ -51,7 +52,7 @@ describe('resolveZoomTarget', () => {
       resolveZoomTarget({
         activeView: 'settings',
         activeTabType: 'terminal',
-        activeElement: makeTarget({ hasXtermClass: true })
+        activeElement: makeTarget({ isTerminalTextarea: true })
       })
     ).toBe('ui')
   })
