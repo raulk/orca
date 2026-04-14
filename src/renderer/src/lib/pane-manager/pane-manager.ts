@@ -17,7 +17,7 @@ import {
   handlePaneDrop,
   updateMultiPaneState
 } from './pane-drag-reorder'
-import { createPaneDOM, openTerminal, attachWebgl, disposePane } from './pane-lifecycle'
+import { createPaneDOM, openTerminal, disposePane } from './pane-lifecycle'
 import { shouldFollowMouseFocus } from './focus-follows-mouse'
 import {
   findPaneChildren,
@@ -98,17 +98,17 @@ export class PaneManager {
     const divider = this.createDividerWrapped(isVertical)
 
     // Why: wrapInSplit reparents the existing container via replaceChild +
-    // appendChild, which can cause the browser to reset scrollTop on xterm's
-    // viewport element to 0 during the next layout. Capture the scroll-at-
-    // bottom state now, before the DOM reparenting corrupts it.
+    // appendChild, which can cause the browser to reset scrollTop on the
+    // terminal's viewport element to 0 during the next layout. Capture the
+    // scroll-at-bottom state now, before the DOM reparenting corrupts it.
     const buf = existing.terminal.buffer.active
     const wasAtBottom = buf.viewportY >= buf.baseY
 
     wrapInSplit(existing.container, newPane.container, isVertical, divider, opts)
 
     // Why: immediately restore the scroll position after DOM reparenting so
-    // that xterm's internal viewportY stays correct when the browser fires
-    // asynchronous scroll events during its layout phase.
+    // that the terminal's internal viewportY stays correct when the browser
+    // fires asynchronous scroll events during its layout phase.
     if (wasAtBottom) {
       existing.terminal.scrollToBottom()
     }
@@ -235,60 +235,27 @@ export class PaneManager {
     applyRootBackground(this.root, this.styleOptions)
   }
 
-  setPaneGpuRendering(paneId: number, enabled: boolean): void {
-    const pane = this.panes.get(paneId)
-    if (!pane) {
-      return
-    }
-
-    pane.gpuRenderingEnabled = enabled
-
-    if (!enabled) {
-      if (pane.webglAddon) {
-        try {
-          pane.webglAddon.dispose()
-        } catch {
-          /* ignore */
-        }
-        pane.webglAddon = null
-      }
-      return
-    }
-
-    if (!pane.webglAddon) {
-      attachWebgl(pane)
-      safeFit(pane)
-    }
+  // Why: ghostty-web uses a canvas renderer instead of WebGL, so GPU rendering
+  // management is a no-op.  The methods are preserved as no-ops to avoid
+  // breaking callers that still reference them.
+  setPaneGpuRendering(_paneId: number, _enabled: boolean): void {
+    // No-op — ghostty-web manages its own canvas renderer.
   }
 
   /**
-   * Suspend GPU rendering for all panes. Disposes WebGL addons to free
-   * GPU contexts while keeping Terminal instances alive (scrollback, cursor,
-   * screen buffer all preserved). Call when this tab/worktree becomes hidden.
+   * Suspend rendering for all panes.  With ghostty-web's canvas renderer
+   * there are no GPU contexts to release, so this is a no-op.
    */
   suspendRendering(): void {
-    for (const pane of this.panes.values()) {
-      if (pane.webglAddon) {
-        try {
-          pane.webglAddon.dispose()
-        } catch {
-          /* ignore */
-        }
-        pane.webglAddon = null
-      }
-    }
+    // No-op — ghostty-web manages its own canvas renderer.
   }
 
   /**
-   * Resume GPU rendering for all panes. Recreates WebGL addons. Call when
-   * this tab/worktree becomes visible again. Must be followed by a fit() pass.
+   * Resume rendering for all panes.  Must be followed by a fit() pass so
+   * the canvas is resized to the current container dimensions.
    */
   resumeRendering(): void {
-    for (const pane of this.panes.values()) {
-      if (pane.gpuRenderingEnabled && !pane.webglAddon) {
-        attachWebgl(pane)
-      }
-    }
+    // No-op — ghostty-web manages its own canvas renderer.
   }
 
   /** Move a pane from its current position to a new position relative to a target pane. */
@@ -372,9 +339,7 @@ export class PaneManager {
       terminal: pane.terminal,
       container: pane.container,
       linkTooltip: pane.linkTooltip,
-      fitAddon: pane.fitAddon,
-      searchAddon: pane.searchAddon,
-      serializeAddon: pane.serializeAddon
+      fitAddon: pane.fitAddon
     }
   }
 

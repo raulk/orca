@@ -60,7 +60,7 @@ export function createPaneDOM(
   // URL tooltip element — Ghostty-style bottom-left hint on hover
   const linkTooltip = document.createElement('div')
   linkTooltip.className = 'pane-link-tooltip'
-  linkTooltip.classList.add('xterm-hover')
+  linkTooltip.classList.add('terminal-hover')
   linkTooltip.style.cssText =
     'display:none;position:absolute;bottom:4px;left:8px;z-index:40;' +
     'padding:5px 8px;border-radius:4px;font-size:11px;font-family:inherit;' +

@@ -82,11 +82,11 @@ export default function TerminalContextMenu({
         align="start"
         onCloseAutoFocus={(e) => {
           // Prevent Radix from moving focus back to the hidden trigger;
-          // let xterm keep focus naturally.
+          // let the terminal keep focus naturally.
           e.preventDefault()
         }}
         onFocusOutside={(e) => {
-          // xterm reclaims focus after the contextmenu event; don't let
+          // the terminal reclaims focus after the contextmenu event; don't let
           // Radix treat that as a dismiss signal.
           e.preventDefault()
         }}

@@ -35,7 +35,7 @@ export function ensurePtyDispatcher(): void {
 
 // ─── Eager PTY buffer for reconnection on restart ────────────────────
 // Why: On startup, PTYs are spawned before TerminalPane mounts. Shell output
-// (prompt, MOTD) arrives via pty:data before xterm exists. These helpers buffer
+// (prompt, MOTD) arrives via pty:data before the terminal exists. These helpers buffer
 // that output so transport.attach() can replay it when the pane finally mounts.
 
 export type EagerPtyHandle = { flush: () => string; dispose: () => void }

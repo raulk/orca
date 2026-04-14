@@ -140,7 +140,7 @@ function RightSidebarInner(): React.JSX.Element {
   // width snaps to 320 px instantly instead of animating from 0→320 px.
   // Without this, Chromium fires the transition causing the terminal
   // container to resize through intermediate widths. Each intermediate
-  // width triggers a synchronous xterm scrollback reflow that blocks the
+  // width triggers a synchronous terminal scrollback reflow that blocks the
   // renderer for seconds on Windows.
   //
   // useLayoutEffect + direct DOM style manipulation runs synchronously

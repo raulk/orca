@@ -78,7 +78,7 @@ export function useTerminalPaneGlobalEffects({
       // setTimeout(0) yield between chunks.  This lets the browser paint
       // frames and process input events between chunks so the UI stays
       // responsive while the scrollback catches up.  The fit is deferred
-      // until after the final chunk so xterm only reflows once.
+      // until after the final chunk so the terminal only reflows once.
       const CHUNK_SIZE = 32 * 1024
       const entries = Array.from(pendingWritesRef.current.entries()).filter(
         ([, buf]) => buf.length > 0

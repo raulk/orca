@@ -679,7 +679,7 @@ function BrowserPagePane({
       return
     }
     keepAddressBarFocusRef.current = true
-    // Why: terminal activation restores xterm focus on a later animation frame
+    // Why: terminal activation restores terminal focus on a later animation frame
     // when the surface changes. A single address-bar focus attempt can lose
     // that race, leaving the new browser tab on <body>. Retry briefly across a
     // few frames so a freshly opened blank tab still lands in the location bar,

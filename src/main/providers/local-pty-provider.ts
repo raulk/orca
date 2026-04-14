@@ -353,7 +353,7 @@ export class LocalPtyProvider implements IPtyProvider {
     return ''
   }
   async clearBuffer(_id: string): Promise<void> {
-    /* handled client-side in xterm.js */
+    /* handled client-side in ghostty-web */
   }
   acknowledgeDataEvent(_id: string, _charCount: number): void {
     /* no flow control for local */

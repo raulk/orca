@@ -3,7 +3,7 @@
  * Terminal E2E helpers for agent-browser + CDP testing against a running Orca
  * dev build. Encapsulates patterns discovered during manual terminal testing:
  *
- *   - CDP key events do NOT work with xterm.js (canvas-based renderer)
+ *   - CDP key events do NOT work with the terminal emulator (canvas-based renderer)
  *   - ClipboardEvent paste simulation does NOT work
  *   - Direct PTY write via `window.api.pty.write(id, data)` DOES work
  *   - PTY IDs are sequential integers starting from 1
@@ -79,19 +79,15 @@ export class OrcaTerminal {
     // Wait for output to render
     execFileSync('sleep', ['1.5'])
 
-    // Read the visible xterm buffer to find which marker appeared
+    // Read the visible terminal buffer to find which marker appeared
     const bufferJs = `
       (function() {
-        const xterms = document.querySelectorAll('.xterm');
-        const visible = Array.from(xterms).find(x => x.offsetParent !== null);
-        if (!visible) return JSON.stringify({error: 'no visible xterm'});
-        // Read the screen buffer's text via the DOM text layer or serialize addon
-        // xterm renders to canvas, so read from the buffer API
-        // We check if the serialize addon exposed the buffer text
-        const screen = visible.querySelector('.xterm-screen');
-        // Fallback: read textContent from the accessibility tree
-        const accessibilityEl = visible.querySelector('.xterm-accessibility');
-        const text = accessibilityEl?.textContent || '';
+        const containers = document.querySelectorAll('.terminal-container');
+        const visible = Array.from(containers).find(x => x.offsetParent !== null);
+        if (!visible) return JSON.stringify({error: 'no visible terminal'});
+        // ghostty-web renders to canvas, so read from the buffer API
+        // Fallback: read textContent from any accessibility elements
+        const text = visible.textContent || '';
         return JSON.stringify({text: text.slice(-2000)});
       })()
     `

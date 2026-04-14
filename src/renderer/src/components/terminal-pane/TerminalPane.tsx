@@ -419,7 +419,7 @@ export default function TerminalPane({
   // on the paste event. We must handle keydown because Chromium does not fire
   // a paste event when the clipboard contains only image data (no text
   // representation) and the target is a textarea — which is exactly how
-  // xterm.js receives focus. Without the keydown handler, image-only pastes
+  // the terminal receives focus. Without the keydown handler, image-only pastes
   // are silently discarded and tools like Claude Code never receive the image.
   //
   // The paste event handler is kept as a fallback for non-keyboard paste
@@ -464,7 +464,7 @@ export default function TerminalPane({
     // Why: intercept Cmd+V / Ctrl+V at the keydown level so we can check
     // for clipboard images via Electron's main-process clipboard API. The
     // browser's paste event is unreliable for image-only clipboards when the
-    // target is a <textarea> (xterm.js's hidden input), so this handler
+    // target is a <textarea> (the terminal's hidden input), so this handler
     // ensures image paste works regardless.
     const isMac = navigator.userAgent.includes('Mac')
     const onKeyPaste = (e: KeyboardEvent): void => {

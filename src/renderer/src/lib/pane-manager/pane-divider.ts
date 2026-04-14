@@ -87,7 +87,7 @@ function attachDividerDrag(
     nextFlex = nextSize
   }
 
-  // Why: fitAddon.fit() triggers a full xterm.js reflow which can take
+  // Why: fitAddon.fit() triggers a full terminal reflow which can take
   // hundreds of ms with large scrollbacks. Gating behind rAF caps refit
   // to once per paint frame instead of once per pointer event (~250Hz).
   let refitRafId: number | null = null

@@ -72,7 +72,7 @@ export function resolveWindowShortcutAction(
   }
 
   // Why: Ctrl+B and Ctrl+L are terminal control characters (STX / form-feed).
-  // Without main-process interception, xterm.js processes the keydown before
+  // Without main-process interception, the terminal processes the keydown before
   // the renderer's window-capture handler can preventDefault, causing ^B / ^L
   // to appear in the terminal alongside the sidebar toggle.
   if (input.code === 'KeyB' && !input.shift) {

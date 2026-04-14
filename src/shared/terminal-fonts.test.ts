@@ -10,7 +10,7 @@ describe('terminal font weights', () => {
     expect(normalizeTerminalFontWeight(undefined)).toBe(DEFAULT_TERMINAL_FONT_WEIGHT)
   })
 
-  it('clamps weights to the supported xterm range', () => {
+  it('clamps weights to the supported terminal range', () => {
     expect(normalizeTerminalFontWeight(10)).toBe(100)
     expect(normalizeTerminalFontWeight(1200)).toBe(900)
   })
