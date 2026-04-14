@@ -1,11 +1,6 @@
-import type { Terminal } from '@xterm/xterm'
-import type { ITerminalOptions } from '@xterm/xterm'
-import type { FitAddon } from '@xterm/addon-fit'
-import type { SearchAddon } from '@xterm/addon-search'
-import type { Unicode11Addon } from '@xterm/addon-unicode11'
-import type { WebLinksAddon } from '@xterm/addon-web-links'
-import type { WebglAddon } from '@xterm/addon-webgl'
-import type { SerializeAddon } from '@xterm/addon-serialize'
+import type { Terminal } from 'ghostty-web'
+import type { ITerminalOptions } from 'ghostty-web'
+import type { FitAddon } from 'ghostty-web'
 
 // ---------------------------------------------------------------------------
 // Public interfaces
@@ -40,8 +35,6 @@ export type ManagedPane = {
   container: HTMLElement // the .pane element
   linkTooltip: HTMLElement
   fitAddon: FitAddon
-  searchAddon: SearchAddon
-  serializeAddon: SerializeAddon
 }
 
 // ---------------------------------------------------------------------------
@@ -49,13 +42,8 @@ export type ManagedPane = {
 // ---------------------------------------------------------------------------
 
 export type ManagedPaneInternal = {
-  xtermContainer: HTMLElement
+  terminalContainer: HTMLElement
   linkTooltip: HTMLElement
-  gpuRenderingEnabled: boolean
-  webglAddon: WebglAddon | null
-  serializeAddon: SerializeAddon
-  unicode11Addon: Unicode11Addon
-  webLinksAddon: WebLinksAddon
 } & ManagedPane
 
 export type DropZone = 'top' | 'bottom' | 'left' | 'right'
