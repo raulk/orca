@@ -6,12 +6,10 @@ import { useAppStore } from '@/store'
 import {
   createFilePathLinkProvider,
   getTerminalFileOpenHint,
-  getTerminalUrlOpenHint,
   handleOscLink
 } from './terminal-link-handlers'
 import type { LinkHandlerDeps } from './terminal-link-handlers'
 import type { GlobalSettings, TerminalLayoutSnapshot } from '../../../../shared/types'
-import { resolveTerminalFontWeights } from '../../../../shared/terminal-fonts'
 import {
   buildFontFamily,
   replayTerminalLayout,
@@ -215,28 +213,21 @@ export function useTerminalPaneLifecycle({
     })
 
     const fileOpenLinkHint = getTerminalFileOpenHint()
-    const urlOpenLinkHint = getTerminalUrlOpenHint()
 
     const manager = new PaneManager(container, {
       onPaneCreated: (pane) => {
-        const linkProviderDisposable = pane.terminal.registerLinkProvider(
+        // Why: ghostty-web's registerLinkProvider() returns void (unlike
+        // xterm.js which returned IDisposable). Link providers are cleaned
+        // up automatically when the terminal is disposed.
+        pane.terminal.registerLinkProvider(
           createFilePathLinkProvider(pane.id, linkDeps, pane.linkTooltip, fileOpenLinkHint)
         )
-        linkProviderDisposablesRef.current.set(pane.id, linkProviderDisposable)
-        pane.terminal.options.linkHandler = {
-          allowNonHttpProtocols: true,
-          activate: (event, text) => handleOscLink(text, event as MouseEvent | undefined, linkDeps),
-          // Show bottom-left tooltip on hover for OSC 8 hyperlinks (e.g.
-          // GitHub owner/repo#issue references emitted by CLI tools) — same
-          // behaviour as the WebLinksAddon provides for plain-text URLs.
-          hover: (_event, text) => {
-            pane.linkTooltip.textContent = `${text} (${urlOpenLinkHint})`
-            pane.linkTooltip.style.display = ''
-          },
-          leave: () => {
-            pane.linkTooltip.style.display = 'none'
-          }
-        }
+        // Why: ghostty-web does not expose a linkHandler option for
+        // intercepting OSC 8 hyperlinks. Instead, the built-in
+        // OSC8LinkProvider and UrlRegexProvider handle link detection
+        // and activation. Custom click routing (Orca in-app browser vs
+        // system browser) is handled by the onLinkClick option on
+        // PaneManagerOptions, which the PaneManager wires up separately.
         applyAppearance(manager)
         const panePtyBinding = connectPanePty(pane, manager, ptyDeps)
         panePtyBindings.set(pane.id, panePtyBinding)
@@ -244,11 +235,7 @@ export function useTerminalPaneLifecycle({
         queueResizeAll(true)
       },
       onPaneClosed: (paneId) => {
-        const linkProviderDisposable = linkProviderDisposablesRef.current.get(paneId)
-        if (linkProviderDisposable) {
-          linkProviderDisposable.dispose()
-          linkProviderDisposablesRef.current.delete(paneId)
-        }
+        linkProviderDisposablesRef.current.delete(paneId)
         const transport = paneTransportsRef.current.get(paneId)
         const panePtyBinding = panePtyBindings.get(paneId)
         if (panePtyBinding) {
@@ -305,12 +292,11 @@ export function useTerminalPaneLifecycle({
       },
       terminalOptions: () => {
         const currentSettings = settingsRef.current
-        const terminalFontWeights = resolveTerminalFontWeights(currentSettings?.terminalFontWeight)
         return {
           fontSize: currentSettings?.terminalFontSize ?? 14,
           fontFamily: buildFontFamily(currentSettings?.terminalFontFamily ?? ''),
-          fontWeight: terminalFontWeights.fontWeight,
-          fontWeightBold: terminalFontWeights.fontWeightBold,
+          // Why: ghostty-web does not expose fontWeight / fontWeightBold
+          // options; font weight is controlled by its WASM renderer.
           scrollback: Math.min(
             50_000,
             Math.max(

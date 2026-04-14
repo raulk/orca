@@ -24,11 +24,9 @@ export class TerminalSearchHelper {
     if (this.matches.length === 0) {
       return false
     }
-    if (options.incremental) {
-      this.currentMatchIndex = 0
-    } else {
-      this.currentMatchIndex = (this.currentMatchIndex + 1) % this.matches.length
-    }
+    this.currentMatchIndex = options.incremental
+      ? 0
+      : (this.currentMatchIndex + 1) % this.matches.length
     this.highlightMatch()
     return true
   }
@@ -75,7 +73,9 @@ export class TerminalSearchHelper {
 
     for (let row = 0; row < totalRows; row++) {
       const line = buffer.getLine(row)
-      if (!line) continue
+      if (!line) {
+        continue
+      }
       const text = line.translateToString(false)
       let match: RegExpExecArray | null
       pattern.lastIndex = 0

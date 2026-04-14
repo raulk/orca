@@ -11,12 +11,6 @@ import { safeFit } from './pane-tree-ops'
 // Pane creation, terminal open/close, addon management
 // ---------------------------------------------------------------------------
 
-function getTerminalUrlOpenHint(): string {
-  return navigator.userAgent.includes('Mac')
-    ? '⌘+click to open or ⇧⌘+click for system browser'
-    : 'Ctrl+click to open or Shift+Ctrl+click for system browser'
-}
-
 export function createPaneDOM(
   id: number,
   options: PaneManagerOptions,
@@ -55,7 +49,6 @@ export function createPaneDOM(
 
   const terminal = new Terminal(terminalOpts)
   const fitAddon = new FitAddon()
-  const openLinkHint = getTerminalUrlOpenHint()
 
   // URL tooltip element — Ghostty-style bottom-left hint on hover
   const linkTooltip = document.createElement('div')
