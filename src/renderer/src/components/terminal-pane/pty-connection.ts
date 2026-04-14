@@ -1,5 +1,5 @@
 import type { PaneManager, ManagedPane } from '@/lib/pane-manager/pane-manager'
-import type { IDisposable } from '@xterm/xterm'
+import type { IDisposable } from 'ghostty-web'
 import { isGeminiTerminalTitle, isClaudeAgent } from '@/lib/agent-status'
 import { scheduleRuntimeGraphSync } from '@/runtime/sync-runtime-graph'
 import { useAppStore } from '@/store'

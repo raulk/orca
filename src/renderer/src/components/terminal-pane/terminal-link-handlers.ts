@@ -1,4 +1,4 @@
-import type { IDisposable, ILink, ILinkProvider } from '@xterm/xterm'
+import type { IDisposable, ILink, ILinkProvider } from 'ghostty-web'
 import { detectLanguage } from '@/lib/language-detect'
 import {
   extractTerminalFileLinks,
@@ -154,12 +154,15 @@ export function createFilePathLinkProvider(
                 worktreePath
               })
             },
-            hover: () => {
-              linkTooltip.textContent = `${resolved.absolutePath} (${openLinkHint})`
-              linkTooltip.style.display = ''
-            },
-            leave: () => {
-              linkTooltip.style.display = 'none'
+            // Why: ghostty-web uses a single hover(isHovered) callback instead
+            // of separate hover/leave, matching its ILink interface.
+            hover: (isHovered: boolean) => {
+              if (isHovered) {
+                linkTooltip.textContent = `${resolved.absolutePath} (${openLinkHint})`
+                linkTooltip.style.display = ''
+              } else {
+                linkTooltip.style.display = 'none'
+              }
             }
           }
         })
@@ -187,7 +190,7 @@ export function handleOscLink(
     return
   }
 
-  // Why: xterm renders URL links as clickable anchors. Once Orca decides to
+  // Why: the terminal renders URL links as clickable anchors. Once Orca decides to
   // handle a modified click itself, we must suppress the browser's default
   // anchor navigation or Electron will still launch the system browser.
   event?.preventDefault?.()

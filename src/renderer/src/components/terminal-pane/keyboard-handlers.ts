@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import type { PaneManager } from '@/lib/pane-manager/pane-manager'
+import { TerminalSearchHelper } from '@/lib/terminal-search-helper'
 import type { PtyTransport } from './pty-transport'
 import { resolveTerminalShortcutAction } from './terminal-shortcut-policy'
 
@@ -8,10 +9,14 @@ function isEditableTarget(target: EventTarget | null): boolean {
     return false
   }
 
-  // xterm.js focuses a hidden <textarea class="xterm-helper-textarea"> for
-  // keyboard input.  That element IS an editable target, but we must NOT
-  // suppress terminal shortcuts when the terminal itself is focused.
-  if (target.classList.contains('xterm-helper-textarea')) {
+  // ghostty-web focuses a hidden <textarea> for keyboard input. That element
+  // IS an editable target, but we must NOT suppress terminal shortcuts when
+  // the terminal itself is focused. We identify the terminal textarea by
+  // checking if it's a child of a .terminal-container element.
+  if (
+    target instanceof HTMLTextAreaElement &&
+    target.closest('.terminal-container') !== null
+  ) {
     return false
   }
 
@@ -120,10 +125,11 @@ export function useTerminalKeyboardShortcuts({
           return
         }
         const { query, caseSensitive, regex } = searchStateRef.current
+        const helper = new TerminalSearchHelper(pane.terminal)
         if (direction === 'next') {
-          pane.searchAddon.findNext(query, { caseSensitive, regex })
+          helper.findNext(query, { caseSensitive, regex })
         } else {
-          pane.searchAddon.findPrevious(query, { caseSensitive, regex })
+          helper.findPrevious(query, { caseSensitive, regex })
         }
         pane.terminal.focus()
         return

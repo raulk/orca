@@ -20,13 +20,13 @@
   outline: none;
 }
 
-.pane-manager-root .xterm {
+/* Why: ghostty-web renders into a canvas element and sets the parent element
+   passed to open() as terminal.element. These rules target the terminal
+   container directly instead of the .xterm / .xterm-viewport classes that
+   the old xterm.js DOM renderer used. */
+.pane-manager-root .terminal-container {
   height: 100%;
   width: 100%;
-}
-
-.pane-manager-root .xterm-viewport {
-  overflow-y: auto;
 }
 
 /* Divider: the element is a wide transparent hit area; the visible line is
@@ -226,11 +226,11 @@
   caret-color: rgba(255, 255, 255, 0.6);
 }
 
-/* Baseline xterm-container layout — the 4px inset padding that pane-lifecycle.ts
+/* Baseline terminal-container layout — the 4px inset padding that pane-lifecycle.ts
    previously set as inline styles now lives here so that the data-has-title
    CSS attribute selector override can take effect (CSS attribute selectors
    cannot override inline styles). */
-.xterm-container {
+.terminal-container {
   position: relative;
   width: calc(100% - 4px);
   height: calc(100% - 4px);
@@ -242,7 +242,7 @@
    The .pane container uses position: relative, so the absolutely-positioned
    title bar occupies the top 20px. Height is reduced by the full 24px
    (20px title bar + 4px base margin-top) to prevent overflow/clipping. */
-.pane[data-has-title] .xterm-container {
+.pane[data-has-title] .terminal-container {
   margin-top: 24px; /* 20px title bar + 4px base margin-top */
   height: calc(100% - 24px); /* must match margin-top to avoid overflow */
 }

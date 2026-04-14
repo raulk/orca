@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { CSSProperties } from 'react'
-import type { IDisposable } from '@xterm/xterm'
+import type { IDisposable } from 'ghostty-web'
 import { useAppStore } from '../../store'
 import {
   DEFAULT_TERMINAL_DIVIDER_DARK,
@@ -17,6 +17,7 @@ import { EMPTY_LAYOUT, paneLeafId, serializeTerminalLayout } from './layout-seri
 import { createExpandCollapseActions } from './expand-collapse'
 import { useTerminalKeyboardShortcuts, type SearchState } from './keyboard-handlers'
 import { useTerminalFontZoom } from './useTerminalFontZoom'
+import { serializeTerminalBuffer } from '@/lib/terminal-serialize-helper'
 import CloseTerminalDialog from './CloseTerminalDialog'
 import { TerminalErrorToast } from './TerminalErrorToast'
 import TerminalContextMenu from './TerminalContextMenu'
@@ -576,7 +577,7 @@ export default function TerminalPane({
         try {
           const leafId = paneLeafId(pane.id)
           let scrollback = pane.terminal.options.scrollback ?? 10_000
-          let serialized = pane.serializeAddon.serialize({ scrollback })
+          let serialized = serializeTerminalBuffer(pane.terminal, { scrollback })
           // Cap at 512KB — binary search for largest scrollback that fits.
           if (serialized.length > MAX_BUFFER_BYTES && scrollback > 1) {
             let lo = 1
@@ -584,7 +585,7 @@ export default function TerminalPane({
             let best = ''
             while (lo <= hi) {
               const mid = Math.floor((lo + hi) / 2)
-              const attempt = pane.serializeAddon.serialize({ scrollback: mid })
+              const attempt = serializeTerminalBuffer(pane.terminal, { scrollback: mid })
               if (attempt.length <= MAX_BUFFER_BYTES) {
                 best = attempt
                 lo = mid + 1
@@ -759,7 +760,7 @@ export default function TerminalPane({
           <TerminalSearch
             isOpen={searchOpen}
             onClose={() => setSearchOpen(false)}
-            searchAddon={activePane.searchAddon ?? null}
+            terminal={activePane.terminal ?? null}
             searchStateRef={searchStateRef}
           />,
           activePane.container

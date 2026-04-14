@@ -1,51 +1,56 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { ChevronUp, ChevronDown, X, CaseSensitive, Regex } from 'lucide-react'
-import type { SearchAddon } from '@xterm/addon-search'
+import type { Terminal } from 'ghostty-web'
 import { Button } from '@/components/ui/button'
 import type { SearchState } from '@/components/terminal-pane/keyboard-handlers'
+import { TerminalSearchHelper } from '@/lib/terminal-search-helper'
 
 type TerminalSearchProps = {
   isOpen: boolean
   onClose: () => void
-  searchAddon: SearchAddon | null
+  terminal: Terminal | null
   searchStateRef: React.RefObject<SearchState>
 }
 
 export default function TerminalSearch({
   isOpen,
   onClose,
-  searchAddon,
+  terminal,
   searchStateRef
 }: TerminalSearchProps): React.JSX.Element | null {
   const inputRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState('')
   const [caseSensitive, setCaseSensitive] = useState(false)
   const [regex, setRegex] = useState(false)
+  const searchHelperRef = useRef<TerminalSearchHelper | null>(null)
 
-  const searchOptions = useCallback(
-    (incremental = false) => ({ caseSensitive, regex, incremental }),
-    [caseSensitive, regex]
-  )
+  // Lazily create/update search helper when the terminal instance changes
+  if (terminal && searchHelperRef.current?.terminal !== terminal) {
+    searchHelperRef.current = new TerminalSearchHelper(terminal)
+  }
+  if (!terminal) {
+    searchHelperRef.current = null
+  }
 
   const findNext = useCallback(() => {
-    if (searchAddon && query) {
-      searchAddon.findNext(query, searchOptions())
+    if (searchHelperRef.current && query) {
+      searchHelperRef.current.findNext(query, { caseSensitive, regex })
     }
-  }, [searchAddon, query, searchOptions])
+  }, [query, caseSensitive, regex])
 
   const findPrevious = useCallback(() => {
-    if (searchAddon && query) {
-      searchAddon.findPrevious(query, searchOptions())
+    if (searchHelperRef.current && query) {
+      searchHelperRef.current.findPrevious(query, { caseSensitive, regex })
     }
-  }, [searchAddon, query, searchOptions])
+  }, [query, caseSensitive, regex])
 
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus()
     } else {
-      searchAddon?.clearDecorations()
+      searchHelperRef.current?.clearDecorations()
     }
-  }, [isOpen, searchAddon])
+  }, [isOpen])
 
   useEffect(() => {
     // Keep the ref in sync so the keyboard handler (Cmd+G / Cmd+Shift+G)
@@ -53,13 +58,13 @@ export default function TerminalSearch({
     searchStateRef.current = { query, caseSensitive, regex }
 
     if (!query) {
-      searchAddon?.clearDecorations()
+      searchHelperRef.current?.clearDecorations()
       return
     }
-    if (searchAddon && isOpen) {
-      searchAddon.findNext(query, { caseSensitive, regex, incremental: true })
+    if (searchHelperRef.current && isOpen) {
+      searchHelperRef.current.findNext(query, { caseSensitive, regex, incremental: true })
     }
-  }, [query, searchAddon, isOpen, caseSensitive, regex, searchStateRef])
+  }, [query, isOpen, caseSensitive, regex, searchStateRef])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
